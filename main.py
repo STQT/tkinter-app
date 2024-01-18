@@ -5,6 +5,7 @@ from frames.additional_frame import AdditionalFrame
 from frames.my_frame import MyFrame
 from tkinter import messagebox as mb
 from utils import *
+import pandas as pd
 
 
 class MyWindow:
@@ -13,13 +14,13 @@ class MyWindow:
         """эта функция вызывает метод open_file из класса Data_model модуля data_model.py"""
         DataModel.open_file(None)
 
-    def load_data(self):
-        """ Пре"""
-        sql_data = self.load_sql_data()
+    # def load_data(self):
+    #     """ Пре"""
+    #     sql_data = self.load_sql_data()
 
     def load_sql_data(self):
-        """ Прочесть данные с скл"""
-        ...
+        """ Прочесть данные из базы SQL"""
+        DataModel.open_from_db(None)
 
     def exit(self):
         """ Здесь выскакивет диалоговое окно при нажатии на Выход"""
@@ -35,13 +36,15 @@ class MyWindow:
         self.font = font.Font(family="Courier", size=14, weight="normal")
         self.root.title(title)
         self.root.geometry(f"{width}x{height}")
-        self.data_model = self.load_data()  # Прочтение с скл данные
+        # self.data_model = self.load_from_db()  # Прочтение с скл данные
 
         menu_bar = Menu(self.root, font=("Courier", 14))  # здесь шрифт не увеличивается
 
         file_menu = Menu(menu_bar, tearoff=0, font=('Courier', 13))
         file_menu.add_command(label="Загрузить файл Excell",
                               command=self.clicked_connect)
+        file_menu.add_command(label="Загрузить из Базы данных",
+                              command=self.load_sql_data)
         file_menu.add_separator()
         file_menu.add_command(label="Выход",
                               command=self.exit)
@@ -53,10 +56,14 @@ class MyWindow:
         # Status Bar
         status_bar = Label(self.root, text="Готово", bd=1, relief=SUNKEN, anchor=W)
         status_bar.pack(side=BOTTOM, fill=X)
+        # Progress Bar
+        progress_bar = ttk.Progressbar(orient="horizontal", variable=status_bar)
+        progress_bar.pack(side=BOTTOM, fill=X)
+        
 
         # Frames
-        frame = MyFrame(self.root, self.data, status_bar)
-        frame.pack()
+        # frame = MyFrame(self.root, self.data, status_bar)
+        # frame.pack()
 
         # additional_frame = AdditionalFrame(self.root, status_bar)
         # additional_frame.pack(padx=30)
