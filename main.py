@@ -1,10 +1,11 @@
+import time
 from tkinter import *
 from tkinter import ttk
 from tkinter import font
 from frames.additional_frame import AdditionalFrame
 from frames.my_frame import MyFrame
 from tkinter import messagebox as mb
-from utils import *
+from utils.data_model import DataModel
 import pandas as pd
 
 
@@ -12,7 +13,7 @@ class MyWindow:
 
     def clicked_connect(self):
         """эта функция вызывает метод open_file из класса Data_model модуля data_model.py"""
-        DataModel.open_file(None)
+        self.datamodel.open_file()
 
     # def load_data(self):
     #     """ Пре"""
@@ -20,7 +21,7 @@ class MyWindow:
 
     def load_sql_data(self):
         """ Прочесть данные из базы SQL"""
-        DataModel.open_from_db(None)
+        DataModel(self).open_from_db()
 
     def exit(self):
         """ Здесь выскакивет диалоговое окно при нажатии на Выход"""
@@ -57,9 +58,13 @@ class MyWindow:
         status_bar = Label(self.root, text="Готово", bd=1, relief=SUNKEN, anchor=W)
         status_bar.pack(side=BOTTOM, fill=X)
         # Progress Bar
-        progress_bar = ttk.Progressbar(orient="horizontal", variable=status_bar)
-        progress_bar.pack(side=BOTTOM, fill=X)
-        
+        self.progress_bar = ttk.Progressbar(orient="horizontal", length=100, variable=status_bar, mode='indeterminate')
+        self.progress_bar.pack(side=BOTTOM, fill=X)
+        self.label_isp = Label(self.root, width=25, height=2, text="Test", font=("arial", 30))
+        self.label_isp.pack()
+        self.datamodel = DataModel(self)
+
+
 
         # Frames
         # frame = MyFrame(self.root, self.data, status_bar)
