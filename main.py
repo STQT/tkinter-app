@@ -30,15 +30,12 @@ class MyWindow:
         if choice:
             self.root.destroy()
 
-    # 1. Open SQL
-    # 2. Open SQL from DataFrame (pd)
     def __init__(self, width, height, title="Анализ закупочных процессов", resizable=(True, True)):
         self.root = Tk()
         self.font = font.Font(family="Courier", size=14, weight="normal")
         self.root.title(title)
         self.root.geometry(f"{width}x{height}")
-        # self.data_model = self.load_from_db()  # Прочтение с скл данные
-
+        
         menu_bar = Menu(self.root, font=("Courier", 14))  # здесь шрифт не увеличивается
 
         file_menu = Menu(menu_bar, tearoff=0, font=('Courier', 13))
@@ -54,17 +51,29 @@ class MyWindow:
                              foreground='white')  # почему-то эта строка не работает
         self.root.config(menu=menu_bar)
         self.root.geometry("640x320")
+        
+        # Создадим набор вкладок
+        notebook = ttk.Notebook(self.root)
+        notebook.pack(expand=True, fill=BOTH)
+        
+        # Создадим пару фреймов
+        frame1 = ttk.LabelFrame(notebook)
+        frame1.pack(fill=BOTH, expand=True)
+        frame2 = ttk.LabelFrame(notebook)
+        frame2.pack(fill=BOTH, expand=True)
+        
+        # Добавим фреймы в качестве вкладок
+        notebook.add(frame1, text="Главное окно")
+        notebook.add(frame2, text="Второе окно")
+        
         # Status Bar
         status_bar = Label(self.root, text="Готово", bd=1, relief=SUNKEN, anchor=W)
         status_bar.pack(side=BOTTOM, fill=X)
         # Progress Bar
         self.progress_bar = ttk.Progressbar(orient="horizontal", length=100, variable=status_bar, mode='indeterminate')
         self.progress_bar.pack(side=BOTTOM, fill=X)
-        self.label_isp = Label(self.root, width=25, height=2, text="Test", font=("arial", 30))
-        self.label_isp.pack()
+        
         self.datamodel = DataModel(self)
-
-
 
         # Frames
         # frame = MyFrame(self.root, self.data, status_bar)

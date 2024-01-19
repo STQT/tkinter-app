@@ -11,7 +11,7 @@ def on_button_click(label):
 
 
 def clean_data_from_xls(file):
-    start_time = time.time()
+    # start_time = time.time()
 
     excel_data_df = pd.read_excel(file)
     """ далее идет блок подготовки данных к анализу"""
@@ -49,8 +49,7 @@ def clean_data_from_xls(file):
                 # удаляем из excel_data_df строки по номеру лота (number_lot)
                 excel_data_df = excel_data_df[excel_data_df['Номер_лота'] != number_lot]
                 excel_data_df = pd.concat([excel_data_df, df_vrem], ignore_index=True)
-
-    end_time = time.time()
+    # end_time = time.time()
     return excel_data_df
 
 def upload_to_sql_df(df, conn, table):
