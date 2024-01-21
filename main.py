@@ -6,11 +6,9 @@ from frames.additional_frame import AdditionalFrame
 from frames.my_frame import MyFrame
 from tkinter import messagebox as mb
 from utils.data_model import DataModel
-import pandas as pd
 
 
 class MyWindow:
-
     def clicked_connect(self):
         """эта функция вызывает метод open_file из класса Data_model модуля data_model.py"""
         self.datamodel.open_file()
@@ -30,12 +28,12 @@ class MyWindow:
         if choice:
             self.root.destroy()
 
-    def __init__(self, width, height, title="Анализ закупочных процессов", resizable=(True, True)):
+    def __init__(self, width, height, title="Анализ закупочных процессов", resizable=(True, True), data_df=None):
         self.root = Tk()
         self.font = font.Font(family="Courier", size=14, weight="normal")
         self.root.title(title)
         self.root.geometry(f"{width}x{height}")
-        
+
         menu_bar = Menu(self.root, font=("Courier", 14))  # здесь шрифт не увеличивается
 
         file_menu = Menu(menu_bar, tearoff=0, font=('Courier', 13))
@@ -51,39 +49,44 @@ class MyWindow:
                              foreground='white')  # почему-то эта строка не работает
         self.root.config(menu=menu_bar)
         self.root.geometry("640x320")
-        
-        # Создадим набор вкладок
-        notebook = ttk.Notebook(self.root)
-        notebook.pack(expand=True, fill=BOTH)
-        
-        # Создадим пару фреймов
-        frame1 = ttk.LabelFrame(notebook)
-        frame1.pack(fill=BOTH, expand=True)
-        frame2 = ttk.LabelFrame(notebook)
-        frame2.pack(fill=BOTH, expand=True)
-        
-        # Добавим фреймы в качестве вкладок
-        notebook.add(frame1, text="Главное окно")
-        notebook.add(frame2, text="Второе окно")
-        
+
         # Status Bar
         status_bar = Label(self.root, text="Готово", bd=1, relief=SUNKEN, anchor=W)
         status_bar.pack(side=BOTTOM, fill=X)
         # Progress Bar
         self.progress_bar = ttk.Progressbar(orient="horizontal", length=100, variable=status_bar, mode='indeterminate')
         self.progress_bar.pack(side=BOTTOM, fill=X)
-        
+
         self.datamodel = DataModel(self)
 
         # Frames
-        # frame = MyFrame(self.root, self.data, status_bar)
-        # frame.pack()
-
-        # additional_frame = AdditionalFrame(self.root, status_bar)
-        # additional_frame.pack(padx=30)
+        # Создадим набор вкладок
+        # notebook = ttk.Notebook(self.root)
+        # notebook.pack(expand=True, fill=BOTH)
+        #
+        # # Создадим фреймы
+        # frame1 = ttk.LabelFrame(notebook)
+        # frame1.pack(fill=BOTH, expand=True)
+        # frame2 = ttk.LabelFrame(notebook)
+        # frame2.pack(fill=BOTH, expand=True)
+        #
+        # # Добавим фреймы в качестве вкладок
+        # notebook.add(frame1, text="Главное окно")
+        # notebook.add(frame2, text="Второе окно")
+        #
+        # label_frm1 = Label(frame1, text="Основные данные для анализа")
+        # label_frm1.pack()
+        #
+        # f_bot = Frame(frame1)
+        # l1 = Label(f_bot, width=7, height=4, bg='yellow', text="1")
+        # f_bot.pack(fill=BOTH, expand=True)
+        # l1.pack()
+        #
+        # label_frm2 = Label(frame2, text="Здесь будут расчетные и аналитические данные")
+        # label_frm2.pack()
 
         self.root.mainloop()
 
 
 if __name__ == "__main__":
-    root = MyWindow(1900, 542, "Анализ закупочных процессов")
+    root = MyWindow(900, 542, "Анализ закупочных процессов")
