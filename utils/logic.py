@@ -54,3 +54,6 @@ def clean_data_from_xls(file):
 
 def upload_to_sql_df(df, conn, table):
     df.to_sql(table, conn, if_exists="replace", index=True)
+    
+def prep_basic_data():
+    print('Мы сейчас здесь??')

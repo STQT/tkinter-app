@@ -4,8 +4,8 @@ import pandas as pd
 import time
 from tkinter import *
 from tkinter import ttk
-
-from utils.logic import clean_data_from_xls, upload_to_sql_df
+from tkinter.ttk import Notebook
+from utils.logic import clean_data_from_xls, upload_to_sql_df, prep_basic_data
 from utils.functions import del_nan
 
 pd.options.display.float_format = '{:,.2f}'.format
@@ -61,30 +61,82 @@ class DataModel:
 
         # label_isp = Label(text="Основные данные для анализа")
         # label_isp.pack(anchor=N, side=LEFT, expand=1)
-
+        
         # Создадим набор вкладок
-        self.notebook = ttk.Notebook(self.window)
-        self.notebook.pack(self.window, expand=True, fill=BOTH)
+        self.notebook = ttk.Notebook()
+        self.notebook.pack(expand=True, fill=BOTH)
         # Создадим фреймы
-        frame1 = ttk.LabelFrame(self.notebook, text="Main Window")
-        frame1.pack(self.notebook, fill=BOTH, expand=True)
+        frame1 = ttk.LabelFrame(self.notebook, height=5)
+        # frame1.pack(anchor=NW, fill=BOTH)
+        
+        frame_top = Frame(frame1, height=5)
+        frame_top.pack(anchor=NW, fill=X)
+        
+        Label(frame_top, text="Наименование столбцов", width=20, height=2).pack(side=LEFT, padx=2)
+        Label(frame_top, text="Номера лотов", width=20, height=2).pack(side=LEFT, padx=1)
+        Label(frame_top, text="ФИО исполнителей", width=20, height=2).pack(side=LEFT, padx=2)
+        Label(frame_top, text="Наименование дисциплин", width=20, height=2).pack(side=LEFT, padx=6)
+        Label(frame_top, text="Наименование проектов", width=20, height=2).pack(side=LEFT, padx=6)
+        Label(frame_top, text="Победители конкурсов", width=20, height=2).pack(side=LEFT, padx=6)
+        Label(frame_top, text="Валюты контракта", width=20, height=2).pack(side=LEFT, padx=6)
+        
+        frame_middle = Frame(frame1, height=40)
+        frame_middle.pack(anchor=CENTER, fill=Y)
+        
         frame2 = ttk.LabelFrame(self.notebook)
-        frame2.pack(fill=BOTH, expand=True)
+        frame2.pack(anchor=NW, fill=BOTH)
+        
         # Добавим фреймы в качестве вкладок
         self.notebook.add(frame1, text="Основные данные")
-        self.notebook.pack()
+        self.notebook.pack(anchor=NW, side=TOP, fill=Y)
         self.notebook.add(frame2, text="Аналитика данных")
         self.notebook.pack()
 
-        label_frm1 = Label(frame1, text="Основные данные")
-        label_frm1.pack()
-
-        columns_var = StringVar(value=columns_name)
-        list_box_1 = Listbox(listvariable=columns_var, width=35)
-        list_box_1.pack(anchor=NW, side=LEFT, fill=Y, expand=1, padx=5, pady=5, ipadx=5, ipady=5)
+        # Вывод списка Наименований столбцов
+        columns_var = StringVar(frame_middle, value=columns_name)
+        list_box_1 = Listbox(frame_middle, listvariable=columns_var, width=24)
+        list_box_1.pack(side=LEFT, fill=BOTH, expand=0, padx=5)
         list_box_1.yview_scroll(number=1, what="units")
 
-        contragent_var = StringVar(value=sorted(contragent_winners))
-        list_box_6 = Listbox(listvariable=contragent_var, width=45)
-        list_box_6.pack(anchor=W, side=LEFT, fill=Y, expand=1, padx=5, pady=5, ipadx=5, ipady=5)
+        # Вывод списка Номера лотов
+        number_lots_var = StringVar(frame_middle, value=number_lots)
+        list_box_2 = Listbox(frame_middle, listvariable=number_lots_var, width=15)
+        list_box_2.pack(side=LEFT, fill=BOTH, expand=0, padx=5, ipadx=5, ipady=5)
+        list_box_2.yview_scroll(number=1, what="units")
+
+        # # Вывод списка Исполнителей_MTO
+        actors_var = StringVar(frame_middle, value=sorted(actor_names))
+        list_box_3 = Listbox(frame_middle, listvariable=actors_var, width=24)
+        list_box_3.pack(side=LEFT, fill=BOTH, expand=0, padx=5, ipadx=5, ipady=5)
+        list_box_3.yview_scroll(number=1, what="units")
+
+        # Вывод списка Дисциплин
+        discipline_var = StringVar(frame_middle, value=sorted(discipline_names))
+        list_box_4 = Listbox(frame_middle, listvariable=discipline_var, width=24)
+        list_box_4.pack(side=LEFT, fill=BOTH, expand=0, padx=5, ipadx=5, ipady=5)
+        list_box_4.yview_scroll(number=1, what="units")
+
+        # # Вывод списка Наименований проектов
+        projects_var = StringVar(frame_middle, value=sorted(project_names))
+        list_box_5 = Listbox(frame_middle, listvariable=projects_var, width=24)
+        list_box_5.pack(side=LEFT, fill=BOTH, expand=0, padx=5, ipadx=5, ipady=5)
+        list_box_5.yview_scroll(number=1, what="units")
+
+        # # Вывод списка Победителей
+        contragent_var = StringVar(frame_middle, value=sorted(contragent_winners))
+        list_box_6 = Listbox(frame_middle, width=24, listvariable=contragent_var)
+        list_box_6.pack(side=LEFT, fill=BOTH, expand=0, padx=5, ipadx=5, ipady=5)
         list_box_6.yview_scroll(number=1, what="units")
+
+        # # Вывод списка Валюты контракта
+        currency_names_var = StringVar(frame_middle, value=currency_names)
+        list_box_7 = Listbox(frame_middle, listvariable=currency_names_var, width=10)
+        list_box_7.pack(side=LEFT, fill=BOTH, expand=0, padx=5, ipadx=5, ipady=5)
+        list_box_7.yview_scroll(number=1, what="units")
+        
+        frame_bottom = Frame(frame1, height=5)
+        frame_bottom.pack()
+
+        label_bot = Label(frame_bottom, text="Наполняем фрейм расчетными основными данными.")
+        label_bot.pack(expand=1)
+        
