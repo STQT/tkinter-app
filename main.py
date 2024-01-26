@@ -1,3 +1,4 @@
+# Источник - https://github.com/STQT/tkinter-app/invitations
 import time
 from tkinter import *
 from tkinter import ttk
@@ -66,4 +67,4 @@ class MyWindow:
 
 
 if __name__ == "__main__":
-	root = MyWindow(1900, 542, "Анализ закупочных процессов")
+	root = MyWindow(900, 542, "Анализ закупочных процессов")
