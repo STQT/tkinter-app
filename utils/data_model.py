@@ -7,6 +7,7 @@ from tkinter import ttk
 from tkinter.ttk import Notebook
 from utils.logic import clean_data_from_xls, upload_to_sql_df, prep_basic_data
 from utils.functions import del_nan
+import sys
 
 pd.options.display.float_format = '{:,.2f}'.format
 import sqlite3
@@ -56,14 +57,13 @@ class DataModel:
         contragent_winners = del_nan(set(data_df['Присуждено_контрагенту']))
         currency_names = del_nan(set(data_df['Валюты_контракта']))
 
-        # data_df_grpd = data_df.groupby(['Номер_лота', 'Дисциплина', 'Исполнитель_МТО',
-        #                                 'Присуждено_контрагенту', 'Валюты_контракта'])['Сумма_контракта'].sum()
+        data_df_grpd = data_df.groupby(['Номер_лота', 'Дата_закрытия_лота', 'Дисциплина', 'Исполнитель_МТО',
+                                        'Присуждено_контрагенту', 'Валюты_контракта'])['Сумма_контракта'].sum()
 
-        
         # Создадим набор вкладок
         self.notebook = ttk.Notebook()
         self.notebook.pack(fill=BOTH, expand=1)
-        
+
         # Создадим фреймы (закладки ноутбука
         frame1 = ttk.LabelFrame(self.notebook)
         frame1.pack(fill=BOTH, expand=1)
@@ -72,18 +72,18 @@ class DataModel:
         frame2 = ttk.LabelFrame(self.notebook)
         frame2.pack(anchor=NW, fill=BOTH)
         self.notebook.add(frame2, text="Аналитика данных")
-        
+
         frame_top = Frame(frame1)
         frame_top.pack(side=TOP, expand=0, fill=X)
-    
-        Label(frame_top, text="Наименование столбцов", width=20, height=0).pack(side=LEFT, expand=0)
-        Label(frame_top, text="Номера лотов", width=20, height=0).pack(side=LEFT, expand=0, padx=1)
-        Label(frame_top, text="ФИО исполнителей", width=20, height=2).pack(side=LEFT, expand=0, padx=2)
-        Label(frame_top, text="Наименование дисциплин", width=20, height=2).pack(side=LEFT, padx=6)
-        Label(frame_top, text="Наименование проектов", width=20, height=2).pack(side=LEFT, padx=6)
+
+        Label(frame_top, text="Наименование столбцов", width=24, height=0).pack(side=LEFT, expand=0, padx=15)
+        Label(frame_top, text="Номера лотов", width=15, height=2).pack(side=LEFT, expand=0, padx=1)
+        Label(frame_top, text="ФИО исполнителей", width=20, height=2).pack(side=LEFT, expand=0, padx=4)
+        Label(frame_top, text="Наименование дисциплин", width=30, height=2).pack(side=LEFT, padx=6)
+        Label(frame_top, text="Наименование проектов", width=24, height=2).pack(side=LEFT, padx=6)
         Label(frame_top, text="Победители конкурсов", width=20, height=2).pack(side=LEFT, padx=6)
         Label(frame_top, text="Валюты контракта", width=20, height=2).pack(side=LEFT, padx=6)
-        
+
         frame_middle = Frame(frame1, height=50)
         frame_middle.pack(side=TOP, fill=X, expand=0)
 
@@ -110,7 +110,7 @@ class DataModel:
         list_box_4 = Listbox(frame_middle, listvariable=discipline_var, width=24, height=15)
         list_box_4.pack(side=LEFT, fill=Y, expand=0, padx=10)
         list_box_4.yview_scroll(number=1, what="units")
-        
+
         # Вывод списка Наименование проекта
         project_names_var = StringVar(frame_middle, value=sorted(project_names))
         list_box_5 = Listbox(frame_middle, listvariable=project_names_var, width=24, height=15)
@@ -132,5 +132,47 @@ class DataModel:
         frame_bottom = Frame(frame1, height=5)
         frame_bottom.pack(side=TOP, fill=X, expand=0)
 
-        label_bot = Label(frame_bottom, text="Наполняем фрейм расчетными основными данными.")
+        label_bot = Label(frame_bottom, text="")
         label_bot.pack(expand=1)
+
+        # Начинаем заполнение правой части окна frame_mddle
+        # Создадим LabelFrame в правой части frame_middle
+        frame_midd_right_top = Frame(frame_middle)
+        frame_midd_right_top.pack(side=LEFT, fill=BOTH, expand=0)
+        frame_midd_right_bot = Frame(frame_middle)
+        frame_midd_right_bot.pack(side=LEFT, fill=BOTH, expand=0)
+
+        label_midd_proj = Label(frame_midd_right_top, text="Количество проектов: ", height=0)
+        label_midd_proj.pack(side=TOP, expand=0, padx=10)
+        entry_midd_proj = Entry(frame_middle, width=20)
+        entry_midd_proj.pack(side=TOP,  expand=0, padx=10)
+        entry_midd_proj.insert(0, len(project_names))
+
+        label_midd_lot = Label(frame_midd_right_top, text="Количество лотов: ", height=0)
+        label_midd_lot.pack(side=TOP, expand=0, padx=10)
+        entry_midd_lot = Entry(frame_middle, width=20)
+        entry_midd_lot.pack(side=TOP, expand=0, padx=10)
+        entry_midd_lot.insert(0, len(number_lots))
+
+        label_midd_win = Label(frame_midd_right_top, text="Число победителей конкурсов ", height=0)
+        label_midd_win.pack(side=TOP, expand=0, padx=10)
+        entry_midd_win = Entry(frame_middle, width=20)
+        entry_midd_win.pack(side=TOP, expand=0, padx=10)
+        entry_midd_win.insert(0, len(contragent_winners))
+
+        # Вызываем из нашего пакета utils модуля logic.py процедуру prep_basic_data
+        prep_basic_data(data_df)
+        print("Мы вернулись сюда же!!!")
+
+        perems = sys.argv
+        for perem in perems:
+            print(perem)
+
+        label_bot1 = Label(frame_bottom, text="Все лоты в интервале: ", height=0)
+        label_bot1.pack(side=LEFT, expand=0)
+
+        # Создаем поле Entry и в него записываем диапазон дат завершения лотов
+        entry = Entry(frame_bottom)
+        entry.pack(side=LEFT, expand=0)
+        my_variable = perems[0] + ' - ' + perems[1]
+        entry.insert(0, my_variable)
