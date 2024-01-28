@@ -7,9 +7,12 @@ from frames.additional_frame import AdditionalFrame
 from frames.my_frame import MyFrame
 from tkinter import messagebox as mb
 from utils.data_model import DataModel
+from frames.select_frame import SelectFrame
 
 
 class MyWindow:
+	data_df = None
+
 	def clicked_connect(self):
 		"""эта функция вызывает метод open_file из класса Data_model модуля data_model.py"""
 		self.datamodel.open_file()
@@ -21,6 +24,11 @@ class MyWindow:
 	def load_sql_data(self):
 		""" Прочесть данные из базы SQL"""
 		DataModel(self).open_from_db()
+		self.select_frame = SelectFrame(self)
+		analytics_frame = ttk.LabelFrame(self.notebook)
+		analytics_frame.pack(fill=BOTH, expand=1)
+		self.notebook.add(analytics_frame, text="Аналитика данных")
+		
 	
 	def exit(self):
 		""" Здесь выскакивет диалоговое окно при нажатии на Выход"""
@@ -50,6 +58,16 @@ class MyWindow:
 		                     foreground='white')  # почему-то эта строка не работает
 		self.root.config(menu=menu_bar)
 		self.root.geometry("640x320")
+
+		# Main Window
+
+		self.notebook = ttk.Notebook()
+		self.notebook.pack(fill=BOTH, expand=1)
+
+		# Notebook Analytics Data
+		# analytics_frame = ttk.LabelFrame(self.notebook).pack(fill=BOTH, expand=1)
+		# self.notebook.add(analytics_frame, text="Аналитика данных")
+
 		
 		# Status Bar
 		status_bar = Label(self.root, text="Готово", bd=1, relief=SUNKEN, anchor=W)

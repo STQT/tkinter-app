@@ -19,7 +19,7 @@ class DataModel:
     def __init__(self, mywindow):
         self.data = {}
         self.progress = mywindow.progress_bar
-        self.window = mywindow
+        self.mywindow = mywindow
 
     def set_data(self, key, value):
         self.data[key] = value
@@ -48,131 +48,41 @@ class DataModel:
         start_time = time.time()
         conn = sqlite3.connect("data/sql_krd.db")
         data_df = pd.read_sql("select * from data_kp", conn)
+        self.mywindow.data_df = data_df
 
-        columns_name = data_df.columns
-        number_lots = del_nan(set(data_df['Номер_лота']))
-        actor_names = del_nan(set(data_df['Исполнитель_МТО']))
-        discipline_names = del_nan(set(data_df['Дисциплина']))
-        project_names = del_nan(set(data_df['Наименование_проекта']))
-        contragent_winners = del_nan(set(data_df['Присуждено_контрагенту']))
-        currency_names = del_nan(set(data_df['Валюты_контракта']))
 
-        data_df_grpd = data_df.groupby(['Номер_лота', 'Дата_закрытия_лота', 'Дисциплина', 'Исполнитель_МТО',
-                                        'Присуждено_контрагенту', 'Валюты_контракта'])['Сумма_контракта'].sum()
+        # data_df_grpd = data_df.groupby(['Номер_лота', 'Дата_закрытия_лота', 'Дисциплина', 'Исполнитель_МТО',
+        #                                 'Присуждено_контрагенту', 'Валюты_контракта'])['Сумма_контракта'].sum()
 
-        # Создадим набор вкладок
-        self.notebook = ttk.Notebook()
-        self.notebook.pack(fill=BOTH, expand=1)
+        # frame2 = ttk.LabelFrame(self.notebook)
+        # frame2.pack(anchor=NW, fill=BOTH)
+        # self.notebook.add(frame2, text="Аналитика данных")
 
-        # Создадим фреймы (закладки ноутбука
-        frame1 = ttk.LabelFrame(self.notebook)
-        frame1.pack(fill=BOTH, expand=1)
-        # Добавим фреймы в качестве вкладок
-        self.notebook.add(frame1, text="Основные данные")
-        frame2 = ttk.LabelFrame(self.notebook)
-        frame2.pack(anchor=NW, fill=BOTH)
-        self.notebook.add(frame2, text="Аналитика данных")
+        
 
-        frame_top = Frame(frame1)
-        frame_top.pack(side=TOP, expand=0, fill=X)
+        # frame_bottom = Frame(frame1, height=5)
+        # frame_bottom.pack(side=TOP, fill=X, expand=0)
 
-        Label(frame_top, text="Наименование столбцов", width=24, height=0).pack(side=LEFT, expand=0, padx=15)
-        Label(frame_top, text="Номера лотов", width=15, height=2).pack(side=LEFT, expand=0, padx=1)
-        Label(frame_top, text="ФИО исполнителей", width=20, height=2).pack(side=LEFT, expand=0, padx=4)
-        Label(frame_top, text="Наименование дисциплин", width=30, height=2).pack(side=LEFT, padx=6)
-        Label(frame_top, text="Наименование проектов", width=24, height=2).pack(side=LEFT, padx=6)
-        Label(frame_top, text="Победители конкурсов", width=20, height=2).pack(side=LEFT, padx=6)
-        Label(frame_top, text="Валюты контракта", width=20, height=2).pack(side=LEFT, padx=6)
+        # label_bot = Label(frame_bottom, text="")
+        # label_bot.pack(expand=1)
 
-        frame_middle = Frame(frame1, height=50)
-        frame_middle.pack(side=TOP, fill=X, expand=0)
+        # # Начинаем заполнение правой части окна frame_mddle
+        # # Создадим LabelFrame в правой части frame_middle
+        
 
-        # Вывод списка Наименований столбцов
-        columns_var = StringVar(frame_middle, value=columns_name)
-        list_box_1 = Listbox(frame_middle, listvariable=columns_var, width=24, height=15)
-        list_box_1.pack(side=LEFT, fill=Y, expand=0, padx=5)
-        list_box_1.yview_scroll(number=1, what="units")
+        # # Вызываем из нашего пакета utils модуля logic.py процедуру prep_basic_data
+        # prep_basic_data(data_df)
+        # print("Мы вернулись сюда же!!!")
 
-        # Вывод списка Номера лотов
-        number_lots_var = StringVar(frame_middle, value=number_lots)
-        list_box_2 = Listbox(frame_middle, listvariable=number_lots_var, width=15, height=15)
-        list_box_2.pack(side=LEFT, fill=Y, expand=0, padx=5)
-        list_box_2.yview_scroll(number=1, what="units")
+        # perems = sys.argv
+        # for perem in perems:
+        #     print(perem)
 
-        # # Вывод списка Исполнителей_MTO
-        actors_var = StringVar(frame_middle, value=sorted(actor_names))
-        list_box_3 = Listbox(frame_middle, listvariable=actors_var, width=24, height=15)
-        list_box_3.pack(side=LEFT, fill=Y, expand=0, padx=10)
-        list_box_3.yview_scroll(number=1, what="units")
+        # label_bot1 = Label(frame_bottom, text="Все лоты в интервале: ", height=0)
+        # label_bot1.pack(side=LEFT, expand=0)
 
-        # Вывод списка Дисциплин
-        discipline_var = StringVar(frame_middle, value=sorted(discipline_names))
-        list_box_4 = Listbox(frame_middle, listvariable=discipline_var, width=24, height=15)
-        list_box_4.pack(side=LEFT, fill=Y, expand=0, padx=10)
-        list_box_4.yview_scroll(number=1, what="units")
-
-        # Вывод списка Наименование проекта
-        project_names_var = StringVar(frame_middle, value=sorted(project_names))
-        list_box_5 = Listbox(frame_middle, listvariable=project_names_var, width=24, height=15)
-        list_box_5.pack(side=LEFT, fill=Y, expand=0, padx=10)
-        list_box_5.yview_scroll(number=1, what="units")
-
-        # # Вывод списка Победителей
-        contragent_var = StringVar(frame_middle, value=sorted(contragent_winners))
-        list_box_6 = Listbox(frame_middle, listvariable=contragent_var, width=24, height=15)
-        list_box_6.pack(side=LEFT, fill=Y, expand=0, padx=5)
-        list_box_6.yview_scroll(number=1, what="units")
-
-        # # Вывод списка Валюты контракта
-        currency_names_var = StringVar(frame_middle, value=currency_names)
-        list_box_7 = Listbox(frame_middle, listvariable=currency_names_var, width=10, height=15)
-        list_box_7.pack(side=LEFT, fill=Y, expand=0, padx=5)
-        list_box_7.yview_scroll(number=1, what="units")
-
-        frame_bottom = Frame(frame1, height=5)
-        frame_bottom.pack(side=TOP, fill=X, expand=0)
-
-        label_bot = Label(frame_bottom, text="")
-        label_bot.pack(expand=1)
-
-        # Начинаем заполнение правой части окна frame_mddle
-        # Создадим LabelFrame в правой части frame_middle
-        frame_midd_right_top = Frame(frame_middle)
-        frame_midd_right_top.pack(side=LEFT, fill=BOTH, expand=0)
-        frame_midd_right_bot = Frame(frame_middle)
-        frame_midd_right_bot.pack(side=LEFT, fill=BOTH, expand=0)
-
-        label_midd_proj = Label(frame_midd_right_top, text="Количество проектов: ", height=0)
-        label_midd_proj.pack(side=TOP, expand=0, padx=10)
-        entry_midd_proj = Entry(frame_middle, width=20)
-        entry_midd_proj.pack(side=TOP,  expand=0, padx=10)
-        entry_midd_proj.insert(0, len(project_names))
-
-        label_midd_lot = Label(frame_midd_right_top, text="Количество лотов: ", height=0)
-        label_midd_lot.pack(side=TOP, expand=0, padx=10)
-        entry_midd_lot = Entry(frame_middle, width=20)
-        entry_midd_lot.pack(side=TOP, expand=0, padx=10)
-        entry_midd_lot.insert(0, len(number_lots))
-
-        label_midd_win = Label(frame_midd_right_top, text="Число победителей конкурсов ", height=0)
-        label_midd_win.pack(side=TOP, expand=0, padx=10)
-        entry_midd_win = Entry(frame_middle, width=20)
-        entry_midd_win.pack(side=TOP, expand=0, padx=10)
-        entry_midd_win.insert(0, len(contragent_winners))
-
-        # Вызываем из нашего пакета utils модуля logic.py процедуру prep_basic_data
-        prep_basic_data(data_df)
-        print("Мы вернулись сюда же!!!")
-
-        perems = sys.argv
-        for perem in perems:
-            print(perem)
-
-        label_bot1 = Label(frame_bottom, text="Все лоты в интервале: ", height=0)
-        label_bot1.pack(side=LEFT, expand=0)
-
-        # Создаем поле Entry и в него записываем диапазон дат завершения лотов
-        entry = Entry(frame_bottom)
-        entry.pack(side=LEFT, expand=0)
-        my_variable = perems[0] + ' - ' + perems[1]
-        entry.insert(0, my_variable)
+        # # Создаем поле Entry и в него записываем диапазон дат завершения лотов
+        # entry = Entry(frame_bottom)
+        # entry.pack(side=LEFT, expand=0)
+        # my_variable = perems[0] + ' - ' + perems[1]
+        # entry.insert(0, my_variable)
