@@ -39,13 +39,13 @@ class MyWindow:
 	
 	def __init__(self, width, height, title="Анализ закупочных процессов", resizable=(True, True), data_df=None):
 		self.root = Tk()
-		self.font = font.Font(family="Courier", size=14, weight="normal")
+		self.font = font.Font(size=14, weight="normal")
 		self.root.title(title)
 		self.root.geometry(f"{width}x{height}")
 		
-		menu_bar = Menu(self.root, font=("Courier", 14))  # здесь шрифт не увеличивается
+		menu_bar = Menu(self.root)  # здесь шрифт не увеличивается
 		
-		file_menu = Menu(menu_bar, tearoff=0, font=('Courier', 13))
+		file_menu = Menu(menu_bar, tearoff=0, font=('Courier', 12))
 		file_menu.add_command(label="Загрузить файл Excell",
 		                      command=self.clicked_connect)
 		file_menu.add_command(label="Загрузить из Базы данных",

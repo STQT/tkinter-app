@@ -81,6 +81,8 @@ def prep_basic_data(data_df):
     # получаем начальную и конечную даты
     earliest_date = min(date_strings)
     latest_date = max(date_strings)
+    begend_date = [earliest_date, latest_date]
+    return begend_date
 
     # полученные значения возвращаем в вызывающий (data_model.py) модуль
     sys.argv = [earliest_date, latest_date]
