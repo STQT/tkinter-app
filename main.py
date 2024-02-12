@@ -23,12 +23,16 @@ class MyWindow:
 	
 	def load_sql_data(self):
 		""" Прочесть данные из базы SQL"""
+		print('Сейчас заходим в DataModel(self).open_from_db()')
 		DataModel(self).open_from_db()
+		print('Мы вернулись!!!')
 		self.select_frame = SelectFrame(self)
 		analytics_frame = ttk.LabelFrame(self.notebook)
 		analytics_frame.pack(fill=BOTH, expand=1)
 		self.notebook.add(analytics_frame, text="Аналитика данных")
-		
+		print('После вывода картинки - мы сейчас здесь! (т.е в бесконечном цикле')
+		"""здесь будет подготовка основного датафрейма и словарей"""
+		DataModel(self).prepare_dicts()
 	
 	def exit(self):
 		""" Здесь выскакивет диалоговое окно при нажатии на Выход"""

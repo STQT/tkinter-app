@@ -1,11 +1,7 @@
-import time
-
 import pandas as pd
 from collections import Counter
-from utils.functions import del_nan
+from utils.functions import del_nan, get_unique_only
 import sys
-
-from datetime import datetime
 
 
 def on_button_click(label):
@@ -54,29 +50,22 @@ def clean_data_from_xls(file):
     # end_time = time.time()
     return excel_data_df
 
+
 def upload_to_sql_df(df, conn, table):
     df.to_sql(table, conn, if_exists="replace", index=True)
-    
+
+
+# В этом модуле идет подготовка основных укрупненных данных
 def prep_basic_data(data_df):
     # Функция определяет номер квартала по дате
-    def qurter_of_date(date):
-        quarter = (date.month - 1) // 3 + 1
+    def qurter_of_date(date_tmp):
+        quarter = (date_tmp.month - 1) // 3 + 1
+        quarter = 'Q' + str(quarter) + '_' + date_tmp[6:10]
         return quarter
 
     # Эта функция собирет в список (массив) только уникальные элементы
-    def get_unique_only(st):
-        # Empty list
-        lst1 = []
-        count = 0
-        # traverse the array
-        for i in st:
-            if i != 0:
-                if i not in lst1:
-                    count += 1
-                    lst1.append(i)
-        return lst1
 
-    # из датафрейма data_df вызываем все даты завершения лотов
+    # из датафрейма data_df вызываем все даты закрытия лотов
     date_strings = get_unique_only(list(data_df['Дата_закрытия_лота']))
     # получаем начальную и конечную даты
     earliest_date = min(date_strings)
@@ -87,13 +76,9 @@ def prep_basic_data(data_df):
     # полученные значения возвращаем в вызывающий (data_model.py) модуль
     sys.argv = [earliest_date, latest_date]
 
-    df_one = "data_df.loc[data_df[" + "Валюты_контракта" +']=="UZS"]'
+    df_one = "data_df.loc[data_df[" + "Валюты_контракта" + ']=="UZS"]'
     print(df_one)
 
     sys.df = df_one
 
-
-
-
-
-
+    return

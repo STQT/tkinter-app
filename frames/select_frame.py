@@ -33,6 +33,7 @@ class SelectFrame:
 		self.set_frame_top()
 		self.set_frame_middle()
 		self.set_frame_bottom()
+		print('Пошагово выполнили все инструкции!!')
 	
 	def set_frame_top(self):
 		# Основная статистика
