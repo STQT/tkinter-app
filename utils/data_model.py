@@ -125,23 +125,3 @@ class DataModel:
             dict_disc_act_freq[key] = list_key
         print('Мы завершили создание словарей!')
         # print(dict_disc_act_freq.values())
-
-        # Подготовка базовых данных
-        # Группировка data_df - суммы и средние значения сумм в разрезе валют
-        # по дисциплинам Компании
-        agg_sum = {'Сумма_контракта': ['sum', 'mean']}
-        df_disc_sum = self.mywindow.data_df.groupby(['Дисциплина', 'Валюты_контракта']).agg(agg_sum)
-        print(df_disc_sum)
-
-        # Суммы контрактов (проработок) по проектам Компании в разрезе валют
-        agg_sum = {'Сумма_контракта': ['sum', 'mean']}
-        self.mywindow.data_df.groupby(['Наименование_проекта', 'Валюты_контракта']).agg(agg_sum)
-
-        # # Количество контрактов (проработок) в разрезе Дисциплин
-        agg_func_count = {'Дисциплина': ['count']}
-        self.mywindow.data_df.groupby(['Дисциплина', 'Валюты_контракта']).agg(agg_func_count)
-
-        # # а как это количество проработок делится между Исполителями?
-        agg_func_count = {'Дисциплина': ['count']}
-        data_actors_count = self.mywindow.data_df.groupby(['Дисциплина', 'Исполнитель_МТО',
-                                                           'Валюты_контракта']).agg(agg_func_count)

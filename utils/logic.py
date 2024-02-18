@@ -55,16 +55,16 @@ def upload_to_sql_df(df, conn, table):
     df.to_sql(table, conn, if_exists="replace", index=True)
 
 
+# Функция определяет номер квартала по дате
+def qurter_of_date(date_tmp):
+    quarter = (date_tmp.month - 1) // 3 + 1
+    quarter = 'Q' + str(quarter) + '_' + date_tmp[6:10]
+    return quarter
+
+
 # В этом модуле идет подготовка основных укрупненных данных
 def prep_basic_data(data_df):
-    # Функция определяет номер квартала по дате
-    def qurter_of_date(date_tmp):
-        quarter = (date_tmp.month - 1) // 3 + 1
-        quarter = 'Q' + str(quarter) + '_' + date_tmp[6:10]
-        return quarter
-
     # Эта функция собирет в список (массив) только уникальные элементы
-
     # из датафрейма data_df вызываем все даты закрытия лотов
     date_strings = get_unique_only(list(data_df['Дата_закрытия_лота']))
     # получаем начальную и конечную даты
@@ -73,12 +73,37 @@ def prep_basic_data(data_df):
     begend_date = [earliest_date, latest_date]
     return begend_date
 
+
+""" С ОСНОВНЫМИ ДАННЫМИ НЕОБХОДИМО РАБОТАТЬ ЗДЕСЬ, причем с другой функцией """
+
+
+def prepare_main_datas(data_df):
+    # Подготовка базовых данных
+    # Группировка data_df - суммы и средние значения сумм в разрезе валют
+    # по дисциплинам Компании
+    agg_sum = {'Сумма_контракта': ['sum', 'mean']}
+    df_disc_sum = data_df.groupby(['Дисциплина', 'Валюты_контракта']).agg(agg_sum)
+    # print(df_disc_sum)
+
+    # Суммы контрактов (проработок) по проектам Компании в разрезе валют
+    agg_sum = {'Сумма_контракта': ['sum', 'mean']}
+    data_df.groupby(['Наименование_проекта', 'Валюты_контракта']).agg(agg_sum)
+
+    # # Количество контрактов (проработок) в разрезе Дисциплин
+    agg_func_count = {'Дисциплина': ['count']}
+    data_df.groupby(['Дисциплина', 'Валюты_контракта']).agg(agg_func_count)
+
+    # # а как это количество проработок делится между Исполителями?
+    agg_func_count = {'Дисциплина': ['count']}
+    data_actors_count = data_df.groupby(['Дисциплина', 'Исполнитель_МТО',
+                                         'Валюты_контракта']).agg(agg_func_count)
+
     # полученные значения возвращаем в вызывающий (data_model.py) модуль
-    sys.argv = [earliest_date, latest_date]
+    # sys.argv = [earliest_date, latest_date]
 
-    df_one = "data_df.loc[data_df[" + "Валюты_контракта" + ']=="UZS"]'
-    print(df_one)
+    # df_one = "data_df.loc[data_df[" + "Валюты_контракта" + ']=="UZS"]'
+    # print(df_one)
+    #
+    # sys.df = df_one
 
-    sys.df = df_one
-
-    return
+    return df_disc_sum, data_actors_count
