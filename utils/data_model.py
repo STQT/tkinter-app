@@ -1,3 +1,5 @@
+""" Достойный материал-туториал - https://habr.com/ru/articles/321510/ ( ниже по коду )"""
+import os
 import threading
 from tkinter import filedialog as fd
 import pandas as pd
@@ -5,7 +7,7 @@ import time
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Notebook
-from utils.logic import clean_data_from_xls, upload_to_sql_df, prep_basic_data
+from utils.logic import clean_data_from_xls, upload_to_sql_df, clean_contr_data_from_xls
 
 from utils.functions import del_nan, get_unique_only, cut_list
 import sys
@@ -16,7 +18,6 @@ import sqlite3
 
 class DataModel:
     StringVar = ''
-
     def __init__(self, mywindow):
         self.data = {}
         self.progress = mywindow.progress_bar
@@ -31,17 +32,43 @@ class DataModel:
     def open_file(self):
         wanted_files = (('Data files', '*.xlsx;*.csv'),
                         ('All', '*.*'))
-        file_name = fd.askopenfilename(initialdir="D:/", title="Find a File",
+        file_path = fd.askopenfilename(initialdir="D:/", title="Find a File",
                                        filetypes=wanted_files)
 
         def real_traitement():
             self.progress.start()
-            df = clean_data_from_xls(file_name)
-            conn = sqlite3.connect("data/sql_krd.db")
-            upload_to_sql_df(df, conn, "data_kp")
+            file_name = os.path.basename(file_path)
+            name, extension = file_name.rsplit(".", 1)
+            simb = name.split("_", 1)[0]
+            if simb == 'KP':
+                df = clean_data_from_xls(file_path)
+                conn = sqlite3.connect("data/sql_krd.db")
+                cur = conn.cursor()
+                cur.execute("DELETE FROM data_tmp")
+                upload_to_sql_df(df, conn, "data_tmp")
+                # здесь предусмотреть запись данных в таблицу data_tmp, затем изменить поля open_date и close_date
+                # путем UPDATE data_kp SET open_date = substr(open_date, 7, 4) || '-' || substr(open_date, 4,2) || '-' || substr(open_date, 1,2);
+                # затем таблицы data_tmp записать в конец таблицы data_kp/ А data_tmp обнулить
+                cur.executescript(
+                    """insert into data_kp(lot_number, lot_status, discipline, project_name,
+                        open_date, close_date, actor_name, good_name,
+                        good_count, unit, supplier_qty, supplier_unit,
+                        winner_name, unit_price, total_price, currency)
+                    select
+                    a.lot_number, a.lot_status, a.discipline, a.project_name,
+                    a.open_date, a.close_date, a.actor_name, a.good_name,
+                    a.good_count, a.unit, a.supplier_qty, a.supplier_unit,
+                    a.winner_name, a.unit_price, a.total_price, a.currency
+                    from data_tmp as a;"""
+                )
+            else:
+                df = clean_contr_data_from_xls(file_path)
+                conn = sqlite3.connect("data/sql_krd.db")
+                upload_to_sql_df(df, conn, "data_contract")
             self.progress.stop()
 
         threading.Thread(target=real_traitement).start()
+
 
     def open_from_db(self):
         start_time = time.time()

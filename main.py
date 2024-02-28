@@ -1,10 +1,6 @@
-import time
 from tkinter import *
 from tkinter import ttk
-from tkinter.ttk import Notebook
 from tkinter import font
-from frames.additional_frame import AdditionalFrame
-from frames.my_frame import MyFrame
 from tkinter import messagebox as mb
 from utils.data_model import DataModel
 from frames.select_frame import SelectFrame
@@ -12,14 +8,14 @@ from frames.select_frame import SelectFrame
 
 class MyWindow:
 	data_df = None
-
+	
 	def clicked_connect(self):
 		"""эта функция вызывает метод open_file из класса Data_model модуля data_model.py"""
 		self.datamodel.open_file()
 	
-	# def load_data(self):
-	#     """ Пре"""
-	#     sql_data = self.load_sql_data()
+	# def clicked_connect_contr(self):
+	# 	print('We go to open_file_contr')
+	# 	self.datamodel.open_file_contr()
 	
 	def load_sql_data(self):
 		""" Прочесть данные из базы SQL"""
@@ -50,8 +46,15 @@ class MyWindow:
 		menu_bar = Menu(self.root)  # здесь шрифт не увеличивается
 		
 		file_menu = Menu(menu_bar, tearoff=0, font=('Courier', 12))
-		file_menu.add_command(label="Загрузить файл Excell",
-		                      command=self.clicked_connect)
+		settings_menu = Menu(menu_bar, tearoff=0, font=('Courier', 12))
+		settings_menu.add_command(label='Загрузить файл с Лотами',
+		                          command=self.clicked_connect)
+		settings_menu.add_command(label='Загрузить файл с Контрактами',
+		                          command=self.clicked_connect)
+		file_menu.add_cascade(label="Загрузить файл Excell",
+		                      menu=settings_menu)
+		file_menu.add_separator()
+		
 		file_menu.add_command(label="Загрузить из Базы данных",
 		                      command=self.load_sql_data)
 		file_menu.add_separator()
@@ -62,16 +65,15 @@ class MyWindow:
 		                     foreground='white')  # почему-то эта строка не работает
 		self.root.config(menu=menu_bar)
 		self.root.geometry("640x320")
-
+		
 		# Main Window
-
+		
 		self.notebook = ttk.Notebook()
 		self.notebook.pack(fill=BOTH, expand=1)
-
+		
 		# Notebook Analytics Data
 		# analytics_frame = ttk.LabelFrame(self.notebook).pack(fill=BOTH, expand=1)
 		# self.notebook.add(analytics_frame, text="Аналитика данных")
-
 		
 		# Status Bar
 		status_bar = Label(self.root, text="Готово", bd=1, relief=SUNKEN, anchor=W)
