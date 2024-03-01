@@ -46,9 +46,6 @@ class DataModel:
                 cur = conn.cursor()
                 cur.execute("DELETE FROM data_tmp")
                 upload_to_sql_df(df, conn, "data_tmp")
-                # здесь предусмотреть запись данных в таблицу data_tmp, затем изменить поля open_date и close_date
-                # путем UPDATE data_kp SET open_date = substr(open_date, 7, 4) || '-' || substr(open_date, 4,2) || '-' || substr(open_date, 1,2);
-                # затем таблицы data_tmp записать в конец таблицы data_kp/ А data_tmp обнулить
                 cur.executescript(
                     """insert into data_kp(lot_number, lot_status, discipline, project_name,
                         open_date, close_date, actor_name, good_name,
@@ -64,7 +61,16 @@ class DataModel:
             else:
                 df = clean_contr_data_from_xls(file_path)
                 conn = sqlite3.connect("data/sql_krd.db")
-                upload_to_sql_df(df, conn, "data_contract")
+                # upload_to_sql_df(df, conn, "data_contr_tmp")
+                df.to_sql("data_contr_tmp", conn, if_exists="append", index=True)
+                cur = conn.cursor()
+                cur.executescript(
+                    '''UPDATE data_contr_tmp SET close_date = substr(close_date, 7, 4)
+								|| '-' || substr(close_date, 4, 2) || '-' || substr(close_date, 1, 2);
+				UPDATE data_contr_tmp SET contract_date = substr(contract_date, 7, 4)
+				|| '-' || substr(contract_date, 4, 2) || '-' || substr(contract_date, 1, 2);''')
+            
+            
             self.progress.stop()
 
         threading.Thread(target=real_traitement).start()

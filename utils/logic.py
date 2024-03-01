@@ -89,11 +89,12 @@ def clean_contr_data_from_xls(file_path):
 
 def upload_to_sql_df(df, conn, table):
 	df.to_sql(table, conn, if_exists="append", index=True)
+	tab = table
 	cur = conn.cursor()
 	cur.executescript(
-		'''UPDATE data_tmp SET close_date = substr(close_date, 7, 4)
+		'''UPDATE table SET close_date = substr(close_date, 7, 4)
 	                || '-' || substr(close_date, 4, 2) || '-' || substr(close_date, 1, 2);
-	UPDATE data_tmp	SET	open_date = substr(open_date, 7, 4) || '-' || substr(open_date, 4, 2) || '-' || substr(open_date, 1, 2);''')
+	UPDATE table SET open_date = substr(open_date, 7, 4) || '-' || substr(open_date, 4, 2) || '-' || substr(open_date, 1, 2);''')
 	
 	conn.commit()
 
