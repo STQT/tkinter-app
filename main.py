@@ -3,8 +3,8 @@ from tkinter import ttk
 from tkinter import font
 from tkinter import messagebox as mb
 from utils.data_model import DataModel
+from frames import create_dbasetable
 from frames.select_frame import SelectFrame
-
 
 class MyWindow:
 	data_df = None

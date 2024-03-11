@@ -47,30 +47,43 @@ class DataModel:
                 cur.execute("DELETE FROM data_tmp")
                 upload_to_sql_df(df, conn, "data_tmp")
                 cur.executescript(
-                    """insert into data_kp(lot_number, lot_status, discipline, project_name,
+                    """INSERT INTO data_kp(lot_number, lot_status, discipline, project_name,
                         open_date, close_date, actor_name, good_name,
                         good_count, unit, supplier_qty, supplier_unit,
                         winner_name, unit_price, total_price, currency)
-                    select
+                    SELECT
                     a.lot_number, a.lot_status, a.discipline, a.project_name,
                     a.open_date, a.close_date, a.actor_name, a.good_name,
                     a.good_count, a.unit, a.supplier_qty, a.supplier_unit,
                     a.winner_name, a.unit_price, a.total_price, a.currency
-                    from data_tmp as a;"""
+                    FROM data_tmp AS a;"""
                 )
+                conn.commit()
             else:
                 df = clean_contr_data_from_xls(file_path)
                 conn = sqlite3.connect("data/sql_krd.db")
-                # upload_to_sql_df(df, conn, "data_contr_tmp")
-                df.to_sql("data_contr_tmp", conn, if_exists="append", index=True)
                 cur = conn.cursor()
+                cur.execute("DELETE FROM data_contr_tmp")
+                df.to_sql("data_contr_tmp", conn, if_exists="append", index=True)
                 cur.executescript(
                     '''UPDATE data_contr_tmp SET close_date = substr(close_date, 7, 4)
 								|| '-' || substr(close_date, 4, 2) || '-' || substr(close_date, 1, 2);
 				UPDATE data_contr_tmp SET contract_date = substr(contract_date, 7, 4)
 				|| '-' || substr(contract_date, 4, 2) || '-' || substr(contract_date, 1, 2);''')
-            
-            
+                
+                cur.execute(
+                    '''insert into data_contract(lot_number, close_date, contract_number,
+	                  contract_date, contract_maker, contract_keeper, good_name,
+	                  supplier_unit, count, unit, unit_price, total_price,
+	                  add_expenses, lottotal_price, currency)
+	                  select
+	                  a.lot_number, a.close_date, a.contract_number,
+	                  a.contract_date, a.contract_maker, a.contract_keeper, a.good_name,
+	                  a.supplier_unit, a.count, a.unit, a.unit_price, a.total_price,
+	                  a.add_expenses, a.lottotal_price, a.currency
+	                  from data_contr_tmp as a;'''
+                )
+                conn.commit()
             self.progress.stop()
 
         threading.Thread(target=real_traitement).start()
@@ -86,10 +99,10 @@ class DataModel:
 
     def prepare_dicts(self):
         print('Теперь мы здесь')
-        self.discipline_names = del_nan(set(self.mywindow.data_df['Дисциплина']))
+        self.discipline_names = del_nan(set(self.mywindow.data_df['discipline']))
 
-        vib_contr_acts = pd.crosstab(self.mywindow.data_df['Присуждено_контрагенту'],
-                                     [self.mywindow.data_df['Исполнитель_МТО']])
+        vib_contr_acts = pd.crosstab(self.mywindow.data_df['winner_name'],
+                                     [self.mywindow.data_df['actor_name']])
 
         list_acts = vib_contr_acts.columns
         list_acts = cut_list(list_acts)
@@ -97,9 +110,9 @@ class DataModel:
 
         # сгруппируем основной датафрейм
         df_grouped = \
-            self.mywindow.data_df.groupby(['Номер_лота', 'Дисциплина', 'Наименование_проекта', 'Дата_открытия_лота',
-                                           'Дата_закрытия_лота', 'Исполнитель_МТО', 'Присуждено_контрагенту',
-                                           'Валюты_контракта'])['Сумма_контракта'].sum()
+            self.mywindow.data_df.groupby(['lot_number', 'discipline', 'project_name', 'open_date',
+                                           'close_date', 'actor_name', 'winner_name',
+                                           'currency'])['total_price'].sum()
         dict_base = df_grouped.to_dict()
 
         # Построим на основе  dict_base несколько словарей
@@ -157,4 +170,4 @@ class DataModel:
             list_key.append(dict_var_tmp)
             dict_disc_act_freq[key] = list_key
         print('Мы завершили создание словарей!')
-        # print(dict_disc_act_freq.values())
+        print(dict_disc_act_freq.values())

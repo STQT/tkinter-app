@@ -26,12 +26,12 @@ class SelectFrame:
 		self.mywindow.notebook.add(self.frame, text="Основные данные")
 		data_df = self.mywindow.data_df
 		self.columns_name = data_df.columns
-		self.number_lots = del_nan(set(data_df['Номер_лота']))
-		self.actor_names = del_nan(set(data_df['Исполнитель_МТО']))
-		self.discipline_names = del_nan(set(data_df['Дисциплина']))
-		self.project_names = del_nan(set(data_df['Наименование_проекта']))
-		self.contragent_winners = del_nan(set(data_df['Присуждено_контрагенту']))
-		self.currency_names = del_nan(set(data_df['Валюты_контракта']))
+		self.number_lots = del_nan(set(data_df['lot_number']))
+		self.actor_names = del_nan(set(data_df['actor_name']))
+		self.discipline_names = del_nan(set(data_df['discipline']))
+		self.project_names = del_nan(set(data_df['project_name']))
+		self.contragent_winners = del_nan(set(data_df['winner_name']))
+		self.currency_names = del_nan(set(data_df['currency']))
 		self.set_frame_top()
 		self.set_frame_middle()
 		self.set_frame_bottom()
@@ -120,15 +120,12 @@ class SelectFrame:
 		list_box_1.yview_scroll(number=1, what="units")
 		
 		# Вывод списка Номера лотов
-		number_lots_var = StringVar(frame_midd_2, value=self.number_lots)
+		number_lots_var = StringVar(frame_midd_2, value=sorted(self.number_lots))
 		list_box_2 = Listbox(frame_midd_2, listvariable=number_lots_var, width=12, height=20)
 		list_box_2.pack(side=LEFT, fill=Y, expand=0, padx=5)
 		list_box_2.yview_scroll(number=1, what="units")
 		
 		# # Вывод списка Исполнителей_MTO
-		# master = frame_midd_2
-		# print('Сейчас перейдем в модуль functions')
-		# self.widget_container = OpenListbox(master, self.actor_names)
 		actors_var = StringVar(frame_midd_2, value=sorted(self.actor_names))
 		list_box_3 = Listbox(frame_midd_2, listvariable=actors_var, width=18, height=15)
 		list_box_3.pack(side=LEFT, fill=Y, expand=0, padx=15)

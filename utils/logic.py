@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from collections import Counter
 from utils.functions import del_nan, get_unique_only
+from datetime import datetime
 
 
 def del_double_rows(basic_df):
@@ -87,14 +88,13 @@ def clean_contr_data_from_xls(file_path):
 	return df
 
 
-def upload_to_sql_df(df, conn, table):
-	df.to_sql(table, conn, if_exists="append", index=True)
-	tab = table
+def upload_to_sql_df(df, conn, data_tmp):
+	df.to_sql(data_tmp, conn, if_exists="append", index=True)
 	cur = conn.cursor()
 	cur.executescript(
-		'''UPDATE table SET close_date = substr(close_date, 7, 4)
+		'''UPDATE data_tmp SET close_date = substr(close_date, 7, 4)
 	                || '-' || substr(close_date, 4, 2) || '-' || substr(close_date, 1, 2);
-	UPDATE table SET open_date = substr(open_date, 7, 4) || '-' || substr(open_date, 4, 2) || '-' || substr(open_date, 1, 2);''')
+	UPDATE data_tmp SET open_date = substr(open_date, 7, 4) || '-' || substr(open_date, 4, 2) || '-' || substr(open_date, 1, 2);''')
 	
 	conn.commit()
 
@@ -111,7 +111,7 @@ def quarter_of_date(date_tmp):
 def prep_basic_data(data_df):
 	# Эта функция собирет в список (массив) только уникальные элементы
 	# из датафрейма data_df вызываем все даты закрытия лотов
-	date_strings = get_unique_only(list(data_df['Дата_закрытия_лота']))
+	date_strings = get_unique_only(list(data_df['close_date']))
 	# получаем начальную и конечную даты
 	earliest_date = min(date_strings)
 	latest_date = max(date_strings)
@@ -123,22 +123,22 @@ def prepare_main_datas(data_df):
 	# Подготовка базовых данных
 	# Группировка data_df - суммы и средние значения сумм в разрезе валют
 	# по дисциплинам Компании
-	agg_sum = {'Сумма_контракта': ['sum', 'mean']}
-	df_disc_sum = data_df.groupby(['Дисциплина', 'Валюты_контракта']).agg(agg_sum)
-	# print(df_disc_sum)
+	agg_sum = {'total_price': ['sum', 'mean']}
+	df_disc_sum = data_df.groupby(['discipline', 'currency']).agg(agg_sum)
+	print(df_disc_sum)
 	
 	# Суммы контрактов (проработок) по проектам Компании в разрезе валют
-	agg_sum = {'Сумма_контракта': ['sum', 'mean']}
-	data_df.groupby(['Наименование_проекта', 'Валюты_контракта']).agg(agg_sum)
+	agg_sum = {'total_price': ['sum', 'mean']}
+	data_df.groupby(['project_name', 'currency']).agg(agg_sum)
 	
 	# # Количество контрактов (проработок) в разрезе Дисциплин
-	agg_func_count = {'Дисциплина': ['count']}
-	data_df.groupby(['Дисциплина', 'Валюты_контракта']).agg(agg_func_count)
+	agg_func_count = {'discipline': ['count']}
+	data_df.groupby(['discipline', 'currency']).agg(agg_func_count)
 	
 	# # а как это количество проработок делится между Исполителями?
-	agg_func_count = {'Дисциплина': ['count']}
-	data_actors_count = data_df.groupby(['Дисциплина', 'Исполнитель_МТО',
-	                                     'Валюты_контракта']).agg(agg_func_count)
+	agg_func_count = {'discipline': ['count']}
+	data_actors_count = data_df.groupby(['discipline', 'actor_name',
+	                                     'currency']).agg(agg_func_count)
 	
 	# полученные значения возвращаем в вызывающий (data_model.py) модуль
 	# sys.argv = [earliest_date, latest_date]
