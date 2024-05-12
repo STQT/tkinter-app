@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect("data/sql_krd.db")
+conn = sqlite3.connect("data/sql_krd_new.db")
 cur = conn.cursor()
 
 param_kp = """CREATE TABLE IF NOT EXISTS data_kp ( lot_number TEXT, lot_status TEXT,

@@ -2,7 +2,7 @@
 
 import sqlite3
 
-conn = sqlite3.connect("sql_krd.db")
+conn = sqlite3.connect("data/sql_krd.db")
 cur = conn.cursor()
 cur.execute("""select count(distinct lot_number) from data_kp
             where project_name = 'Бойсун ГПЗ (ЕРС)'

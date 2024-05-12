@@ -36,7 +36,7 @@ def cut_list(lstt_act):
 
 
 def calc_indicators(query):
-	conn = sqlite3.connect("data/sql_krd.db")
+	conn = sqlite3.connect("data/sql_krd_new.db")
 	cur = conn.cursor()
 	res = cur.execute(query).fetchall()
 	return res
@@ -46,7 +46,7 @@ def prepare_main_datas(sql_query=None):
 	# Суммы и средние значения контрактов в разрезе Дисциплин и валют контрактов
 	# материал по работе SQLite_Python заимствован из
 	# https://sky.pro/wiki/sql/preobrazovanie-rezultatov-zaprosa-sqlite-v-slovar/
-	conn = sqlite3.connect("data/sql_krd.db")
+	conn = sqlite3.connect("data/sql_krd_new.db")
 	cur = conn.cursor()
 	cur.execute(sql_query)
 	columns = [column[0] for column in cur.description]

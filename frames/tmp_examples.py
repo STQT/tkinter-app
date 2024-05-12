@@ -1,6 +1,7 @@
 import sqlite3
+from config
 
-conn = sqlite3.connect('sql_krd.db')
+conn = sqlite3.connect('data/sql_krd_new.db')
 cursor = conn.cursor()
 
 # Используем транзакцию для открытия базы

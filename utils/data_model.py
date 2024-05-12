@@ -44,8 +44,8 @@ class DataModel:
 			simb = name.split("_", 1)[0]
 			if simb == 'KP':
 				df = clean_data_from_xls(file_path)
-				# откр/закр sql_krd.db перенести в functions.py
-				conn = sqlite3.connect("data/sql_krd.db")
+				# откр/закр sql_krd_new.db перенести в functions.py
+				conn = sqlite3.connect("data/sql_krd_new.db")
 				cur = conn.cursor()
 				cur.execute("DELETE FROM data_tmp")
 				upload_to_sql_df(df, conn, "data_tmp")
@@ -65,7 +65,7 @@ class DataModel:
 			else:
 				# clean_contr и clean_data объединить в одной функции
 				df = clean_contr_data_from_xls(file_path)
-				conn = sqlite3.connect("data/sql_krd.db")
+				conn = sqlite3.connect("data/sql_krd_new.db")
 				cur = conn.cursor()
 				cur.execute("DELETE FROM data_contr_tmp")
 				df.to_sql("data_contr_tmp", conn, if_exists="append", index=True)
@@ -95,7 +95,7 @@ class DataModel:
 	
 	def open_from_db(self):
 		start_time = time.time()
-		conn = sqlite3.connect("data/sql_krd.db")
+		conn = sqlite3.connect("data/sql_krd_new.db")
 		data_df = pd.read_sql("select * from data_kp", conn)
 		self.mywindow.data_df = data_df # а нужно ли нам в дальнейшем data_df или обойдемся SQL Query?
 		print('Возвращаемся в место вызова')
@@ -142,7 +142,7 @@ class DataModel:
 	def prepare_analytic_data(self):
 		# здесь находим все контракты, которые были заключены (???) без конкурсных проработок
 		# и выводим в файл Excel
-		conn = sqlite3.connect("data/sql_krd.db")
+		conn = sqlite3.connect("data/sql_krd_new.db")
 		cur = conn.cursor()
 		# здесь нужно использовать параметризацию с датами
 		cur.execute("""

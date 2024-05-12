@@ -1,7 +1,7 @@
 import sqlite3
 
 query = (""" select * from data_contract where lot_number = 80145; """)
-conn= sqlite3.connect("data/sql_krd.db")
+conn= sqlite3.connect("data/sql_krd_new.db")
 cur = conn.cursor()
 result = cur.execute(query).fetchall()
 print(result)

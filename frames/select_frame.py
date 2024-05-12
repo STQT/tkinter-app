@@ -60,7 +60,7 @@ class SelectFrame:
 		""" для вычисления beg_end_date вызываем prep_basic_data(self.mywindow.data_df)"""
 		# beg_end_date = connect_to_database(self.mywindow.data_df) - потом Удалить
 		# создадим переменную с именем базы данных
-		db_name = 'data/sql_krd.db'
+		db_name = 'data/sql_krd_new.db'
 		beg_end_date = connect_to_database(db_name)
 		print(beg_end_date)
 		
