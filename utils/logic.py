@@ -3,6 +3,7 @@ import numpy as np
 from collections import Counter
 from utils.functions import del_nan, get_unique_only
 from datetime import datetime
+import sqlite3
 
 
 def del_double_rows(basic_df):
@@ -108,44 +109,15 @@ def quarter_of_date(date_tmp):
 
 # В этом модуле идет подготовка основных укрупненных данных
 
-def prep_basic_data(data_df):
+def connect_to_database(db_name):
 	# Эта функция собирет в список (массив) только уникальные элементы
 	# из датафрейма data_df вызываем все даты закрытия лотов
-	date_strings = get_unique_only(list(data_df['close_date']))
+	# date_strings = get_unique_only(list(data_df['close_date']))
 	# получаем начальную и конечную даты
-	earliest_date = min(date_strings)
-	latest_date = max(date_strings)
-	begend_date = [earliest_date, latest_date]
-	return begend_date
-
-
-def prepare_main_datas(data_df):
-	# Подготовка базовых данных
-	# Группировка data_df - суммы и средние значения сумм в разрезе валют
-	# по дисциплинам Компании
-	agg_sum = {'total_price': ['sum', 'mean']}
-	df_disc_sum = data_df.groupby(['discipline', 'currency']).agg(agg_sum)
-	print(df_disc_sum)
+	conn = sqlite3.connect(db_name)
+	cur = conn.cursor()
+	min_date = cur.execute('SELECT min(close_date) FROM data_kp').fetchone()
+	max_date = cur.execute('SELECT max(close_date) FROM data_kp').fetchone()
+	beg_end_date = [min_date, max_date]
 	
-	# Суммы контрактов (проработок) по проектам Компании в разрезе валют
-	agg_sum = {'total_price': ['sum', 'mean']}
-	data_df.groupby(['project_name', 'currency']).agg(agg_sum)
-	
-	# # Количество контрактов (проработок) в разрезе Дисциплин
-	agg_func_count = {'discipline': ['count']}
-	data_df.groupby(['discipline', 'currency']).agg(agg_func_count)
-	
-	# # а как это количество проработок делится между Исполителями?
-	agg_func_count = {'discipline': ['count']}
-	data_actors_count = data_df.groupby(['discipline', 'actor_name',
-	                                     'currency']).agg(agg_func_count)
-	
-	# полученные значения возвращаем в вызывающий (data_model.py) модуль
-	# sys.argv = [earliest_date, latest_date]
-	
-	# df_one = "data_df.loc[data_df[" + "Валюты_контракта" + ']=="UZS"]'
-	# print(df_one)
-	#
-	# sys.df = df_one
-	
-	return df_disc_sum, data_actors_count
+	return beg_end_date

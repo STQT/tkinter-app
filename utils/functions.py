@@ -1,4 +1,7 @@
 import pandas as pd
+import sqlite3
+from tkinter import *
+from tkinter import ttk
 
 
 def del_nan(list_name):
@@ -31,43 +34,61 @@ def cut_list(lstt_act):
 			continue
 	return last_act
 
-# class OpenListbox(select_frame):
-#     print('Мы в модуле FUNCTIONS')
-#     list =''
-#     def __init__(self, master=None, *args, **kwargs):
-#         self.data = {}
-#         # self.frame_middle = frame_middle
-#         self.mywindow = master
-#
-#     def srch_lisbox_item(list):
-#         def Scankey(event):
-#             val = event.widget.get()
-#             if val == '':
-#                 data = list
-#             else:
-#                 data = []
-#                 for item in list:
-#                     if val.lower() in item.lower():
-#                         data.append(item)
-#             Update(data)
-#
-#         def Update(data):
-#             listbox.delete(0, 'end')
-#             # put new data
-#             for item in data:
-#                 listbox.insert('end', item)
-#
-#         # list = ('C', 'C++', 'Java',
-#         #         'Python', 'Perl',
-#         #         'PHP', 'ASP', 'JS',
-#         #         'JVC', 'Toyota', 'Beatles',
-#         #         'Deep Purple', 'Middleware', 'Compare',
-#         #         'Komparison', 'Uriah Heep')
-#
-#         listbox = Listbox(mywindow)
-#         listbox.pack()
-#         Update(list)
-#
-#         entry = Entry(mywindow)
-#         entry.pack()
-#         entry.bind('<KeyRelease>', Scankey)
+
+def calc_indicators(query):
+	conn = sqlite3.connect("data/sql_krd.db")
+	cur = conn.cursor()
+	res = cur.execute(query).fetchall()
+	return res
+
+
+def prepare_main_datas(sql_query=None):
+	# Суммы и средние значения контрактов в разрезе Дисциплин и валют контрактов
+	# материал по работе SQLite_Python заимствован из
+	# https://sky.pro/wiki/sql/preobrazovanie-rezultatov-zaprosa-sqlite-v-slovar/
+	conn = sqlite3.connect("data/sql_krd.db")
+	cur = conn.cursor()
+	cur.execute(sql_query)
+	columns = [column[0] for column in cur.description]
+	values = cur.fetchall()
+	row_dict = {}
+	k = 0
+	for column in columns:
+		list_tmp = []
+		for value in values:
+			list_tmp.append(value[k])
+		row_dict[column] = list_tmp
+		k += 1
+	df = pd.DataFrame(row_dict)
+	return df
+
+
+def create_treeview_table(df):
+	columns = df.columns
+	print('Our DF columns is ', columns)
+	list_of_rows = []
+	print('df.shape =', df.shape)
+	for i in range(df.shape[0]):
+		list_of_rows.append(df.T[i].tolist())
+	param1 = columns
+	param2 = list_of_rows
+	return param1, param2
+
+# функция параметризации запроса
+def param_query(qry):
+	conn = sqlite3.connect("data\sql_krd.db")
+	cur = conn.cursor()
+	cur.execute(qry)
+	
+	print(cur.fetchall())
+	
+	conn.close()
+
+def scroll_box(scroll_param1, scroll_param2):
+	scrollbar = ttk.Scrollbar(scroll_param2, orient=VERTICAL, command=scroll_param1.yview)
+	scrollbar.pack(side=RIGHT, fill=Y, anchor=E)
+	scroll_param1["yscrollcommand"] = scrollbar.set
+	
+	
+
+

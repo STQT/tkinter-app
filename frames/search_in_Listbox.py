@@ -1,6 +1,5 @@
 from tkinter import *
 
-
 def Scankey(event):
     val = event.widget.get()
     if val == '':
@@ -25,14 +24,14 @@ list = ('C', 'C++', 'Java',
         'Deep Purple', 'Middleware', 'Compare',
         'Komparison', 'Uriah Heep')
 
-ws = Tk()
+tk = Tk()
 
-listbox = Listbox(ws)
+listbox = Listbox(tk)
 listbox.pack()
 Update(list)
 
-entry = Entry(ws)
+entry = Entry(tk)
 entry.pack()
 entry.bind('<KeyRelease>', Scankey)
 
-ws.mainloop()
+tk.mainloop()
